@@ -140,23 +140,3 @@ class DrawingBoard {
 
 } //End Drawing Board Class
 
-/*
-var canvas = $('#c');
-
-var parentOffset = canvas.offset();
-board = new Area();
-
-
-canvas.mousemove(function(event) {
-
-});
-
-
-canvas.dblclick(function(event) {
-	x = event.pageX - parentOffset.left;
-  y = event.pageY - parentOffset.top;
-  C = board.selectCircle(x,y);
-  board.removeCircle(C);
-  board.redraw();
-});
-*/
