@@ -11,12 +11,25 @@
 <canvas id='drawing-board'></canvas>
 
 </canvas>
+<div style="position:absolute;top:500px;">
+<button id="circle">Circle</button>
+<button id="rectangle">Rectangle</button>
+</div>
+
 
 <script src="../Shapes.js"></script>
 <script src="../DrawingBoard.js"></script>
 <script>
 "use strict";
 var board = new DrawingBoard('drawing-board');
+
+document.getElementById('circle').onclick = function(){
+	board.setShapeChoice('Circle');
+};
+document.getElementById('rectangle').onclick = function(){
+	board.setShapeChoice('Rectangle');
+};
+
 </script>
 </body>
 </html>

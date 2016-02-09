@@ -7,8 +7,10 @@ class DrawingBoard {
     this.context = this.canvas.getContext('2d');
     this.width = 1000; //make this configurable
     this.height = 500; //make this configurable
+    this.offset = {'x': this.canvas.offsetLeft, 'y' : this.canvas.offsetTop};
     this.prepareCanvas();
-    this.shapes = {'circles':[]};
+    this.shapes = {};
+    this.shapeChoice = 'Circle';
   }
   
   clear() {
@@ -20,6 +22,20 @@ class DrawingBoard {
     this.context.clearRect(0, 0, this.width, this.height);
   }
 
+  setShapeChoice(type){
+    //TODO, check for valid type
+    this.shapeChoice = type;
+    return this.shapeChoice;
+  }
+
+  getMousePosition(event){
+    var coordinates = {
+      'x' : event.pageX - this.offset['x'],
+      'y' : event.pageY - this.offset['y']
+    }
+    return coordinates;
+  }
+
   draw(shape){
     if( shape.draw(this.context) ){
       this.addShape(shape);
@@ -29,22 +45,28 @@ class DrawingBoard {
   redraw() {
     var that = this;
     this.erase();
-    /*
-    TODO this needs to loop through the shape object
-     then each array of shape types
-    */
-    this.shapes.circles.forEach(function(circle) {
-      circle.redraw(that.context);
-    });
+
+    for( var type in this.shapes ){
+      this.shapes[type].forEach(function(shape) {
+        shape.draw(that.context);
+      });
+    }
+  }
+
+  createShape(start){
+    switch(this.shapeChoice){
+      case 'Circle':
+        return new Circle(start);
+      case 'Rectangle':
+        return new Rectangle(start);
+    }
   }
 
   addShape(shape){
-    switch (shape.type){
-      case 'Circle':
-        this.addCircle(shape);
-        break;
+    if( !this.shapes.hasOwnProperty(shape.type) ){
+      this.shapes[shape.type] = [];
     }
-    shape.draw(this.context);
+    this.shapes[shape.type].push(shape);
   }
 
   removeShape(){
@@ -98,36 +120,36 @@ class DrawingBoard {
     this.canvas.className = "default-board";
     this.canvas.height = this.height
     this.canvas.width = this.width;
-    var circle;
-    var offset = {'x': this.canvas.offsetLeft, 'y' : this.canvas.offsetTop};
+    var shape;
+    
     /*
     * Maybe this should be done differently ???
     * TODO, handle different kinds of shapes
     */
     this.canvas.onmousedown = function(e){
-      var start = {
-        'x' : e.pageX - offset['x'],
-        'y' : e.pageY - offset['y']
-      };
-      circle = new Circle(start);
+      var start = that.getMousePosition(e);
+      shape = that.createShape(start);
     };
 
     this.canvas.onmousemove = function(e){
-      if( circle && circle.drawing ){
-        circle.setEnd(e, offset);
+      if( shape && shape.drawing ){
+        var end = that.getMousePosition(e);
+        shape.setEnd(end);
         that.redraw();
-        that.draw(circle);
+        that.draw(shape);
       }
     };
 
 
     this.canvas.onmouseup = function(e) {
-      circle.drawing = false;
-      circle.setEnd(e, offset);
-      that.addShape(circle);
+      shape.drawing = false;
+      var end = that.getMousePosition(e);
+      shape.setEnd(end);
+      that.addShape(shape);
       that.redraw();
     };
 
+/* This doesn't work
     this.canvas.ondblclick = function(e) {
       var x = e.pageX - offset['x'];
       var y = e.pageY - offset['y'];
@@ -135,6 +157,7 @@ class DrawingBoard {
       that.removeCircle(C);
       that.redraw();
     };
+*/
 
   }
 
